@@ -29,7 +29,7 @@ public class BiddingService {
     private UserService userService;
 
     public ResponseEntity<Object> postBidding(BiddingModel biddingModel) {
-        try {
+        
             String email = getCurrentUserEmail();
             UserModel user = userService.getUserByEmail(email);
 
@@ -39,12 +39,16 @@ public class BiddingService {
 
             biddingModel.setBidderId(user.getId());
             biddingModel.setDateOfBidding(getCurrentDate());
+            boolean validation = validBiddingname(biddingModel.getStatus());
 
+            if(validation) {
             biddingRepository.save(biddingModel);
+            }
+            else {
+            	throw new RuntimeException("Invalid status");
+            }
             return new ResponseEntity<>(biddingModel, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
-        }
+        
     }
 
     public ResponseEntity<Object> getBidding(double bidAmount) {
@@ -64,7 +68,7 @@ public class BiddingService {
             if (bidding == null) {
                 return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
             }
-
+            
             String email = getCurrentUserEmail();
             UserModel user = userService.getUserByEmail(email);
 
@@ -72,11 +76,16 @@ public class BiddingService {
                 return new ResponseEntity<>("Forbidden", HttpStatus.FORBIDDEN);
             }
             bidding.setStatus(model.getStatus());
-            biddingRepository.save(bidding);
+            
+            biddingRepository.save(bidding);        
+           
             return new ResponseEntity<>(bidding, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
         }
+    }
+    private boolean validBiddingname(String name) {
+    	return name !=null && !name.isEmpty();
     }
 
     public ResponseEntity<Object> deleteBidding(int id) {
@@ -99,6 +108,10 @@ public class BiddingService {
         } catch (Exception e) {
             return new ResponseEntity<>("Bad Request", HttpStatus.BAD_REQUEST);
         }
+    }
+    
+    public void deleteBiddingByid(int id) {
+    	biddingRepository.deleteById(id);
     }
 
     public String getCurrentUserEmail() {

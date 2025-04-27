@@ -45,4 +45,9 @@ public class BiddingController {
     public ResponseEntity<Object> deleteBidding(@PathVariable int id) {
         return biddingService.deleteBidding(id);
     }
+    
+    @DeleteMapping("/delete/{id}")
+    public void deleteBiddingByid(@PathVariable int id) {
+    	biddingService.deleteBidding(id);
+    }
 }
